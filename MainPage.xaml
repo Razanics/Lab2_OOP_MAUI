@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Lab2_OOP_MAUI.MainPage"
+             Title="Лабораторна робота №2 — Обробка XML-документів">
+
+    <ContentPage.MenuBarItems>
+        <MenuBarItem Text="Файл">
+            <MenuFlyoutItem Text="Відкрити XML-файл..." Clicked="OnLoadXmlClicked" />
+            <MenuFlyoutItem Text="Зберегти відфільтроване (XML/HTML)" Clicked="OnSaveFilteredClicked" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Text="Вихід" Clicked="OnExitClicked" />
+        </MenuBarItem>
+        <MenuBarItem Text="Обробка">
+            <MenuFlyoutItem Text="Знайти (Аналіз XML)" Clicked="OnSearchClicked" />
+            <MenuFlyoutItem Text="Дерево DOM (RecurseNodes)" Clicked="OnShowDomTreeClicked" />
+            <MenuFlyoutItem Text="Потік SAX (XmlTextReader)" Clicked="OnShowSaxStreamClicked" />
+            <MenuFlyoutItem Text="Трансформувати XML в HTML" Clicked="OnTransformClicked" />
+            <MenuFlyoutItem Text="Трансформувати XML в XML" Clicked="OnTransformXmlToXmlClicked" />
+            <MenuFlyoutItem Text="Очистити (Clear)" Clicked="OnClearClicked" />
+        </MenuBarItem>
+        <MenuBarItem Text="Завдання 2-7">
+            <MenuFlyoutItem Text="Завдання 2 і 3 (LINQ to Object)" Clicked="OnRunLinq2And3Clicked" />
+            <MenuFlyoutItem Text="Завдання 4-6 (MyRoot за ID)" Clicked="OnRunMyRootSearchClicked" />
+            <MenuFlyoutItem Text="Завдання 7 (MyRoot у HTML)" Clicked="OnRunMyRootHtmlClicked" />
+        </MenuBarItem>
+        <MenuBarItem Text="Довідка">
+            <MenuFlyoutItem Text="Допомога користувачу" Clicked="OnHelpClicked" />
+            <MenuFlyoutItem Text="Про програму" Clicked="OnAboutClicked" />
+        </MenuBarItem>
+    </ContentPage.MenuBarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="14">
+
+            <Border Stroke="#CBD5E1" StrokeThickness="1" Padding="12" BackgroundColor="#F8FAFC">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Панель швидкого доступу (дублює головне меню)" FontAttributes="Bold" TextColor="#1E293B" />
+                    <FlexLayout Wrap="Wrap" JustifyContent="Start" AlignItems="Center">
+                        <Button Text="📂 Відкрити XML" Clicked="OnLoadXmlClicked" Margin="4" BackgroundColor="#2563EB" />
+                        <Button Text="🔍 Пошук" Clicked="OnSearchClicked" Margin="4" BackgroundColor="#16A34A" />
+                        <Button Text="🌳 Дерево DOM" Clicked="OnShowDomTreeClicked" Margin="4" BackgroundColor="#0284C7" />
+                        <Button Text="⚡ Розбір SAX" Clicked="OnShowSaxStreamClicked" Margin="4" BackgroundColor="#0369A1" />
+                        <Button Text="🌐 XML в HTML (XSLT)" Clicked="OnTransformClicked" Margin="4" BackgroundColor="#7C3AED" />
+                        <Button Text="🔄 XML в XML (XSLT)" Clicked="OnTransformXmlToXmlClicked" Margin="4" BackgroundColor="#6D28D9" />
+                        <Button Text="💾 Зберегти фрагмент" Clicked="OnSaveFilteredClicked" Margin="4" BackgroundColor="#0D9488" />
+                        <Button Text="🧹 Clear (Очистити)" Clicked="OnClearClicked" Margin="4" BackgroundColor="#EA580C" />
+                        <Button Text="❓ Допомога" Clicked="OnHelpClicked" Margin="4" BackgroundColor="#475569" />
+                        <Button Text="ℹ️ Про програму" Clicked="OnAboutClicked" Margin="4" BackgroundColor="#475569" />
+                        <Button Text="🚪 Вихід" Clicked="OnExitClicked" Margin="4" BackgroundColor="#DC2626" />
+                    </FlexLayout>
+                    <Label x:Name="FilePathLabel" Text="Поточний файл: не вибрано" FontSize="13" TextColor="#475569" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Stroke="#CBD5E1" StrokeThickness="1" Padding="12">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="1. Параметри пошуку (динамічна підгрузка значень атрибутів із файла)" FontAttributes="Bold" FontSize="16" />
+
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="10">
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="0">
+                            <Label Text="П.І.П. студента (атрибут FullName):" />
+                            <Picker x:Name="FullNamePicker" Title="-- Оберіть П.І.П. --" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="1">
+                            <Label Text="Факультет (атрибут Faculty):" />
+                            <Picker x:Name="FacultyPicker" Title="-- Оберіть факультет --" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="0">
+                            <Label Text="Кафедра (атрибут Department):" />
+                            <Picker x:Name="DepartmentPicker" Title="-- Оберіть кафедру --" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="1">
+                            <Label Text="Курс (атрибут Course):" />
+                            <Picker x:Name="CoursePicker" Title="-- Оберіть курс --" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Row="2" Grid.Column="0">
+                            <Label Text="Дисципліна 2-го рівня (Subject/@Name):" />
+                            <Picker x:Name="SubjectPicker" Title="-- Оберіть дисципліну --" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Row="2" Grid.Column="1">
+                            <Label Text="Ключове слово (пошук за будь-яким атрибутом):" />
+                            <Entry x:Name="KeywordEntry" Placeholder="Наприклад: К-16, Денна, Джалялов..." />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Stroke="#CBD5E1" StrokeThickness="1" Padding="12">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="2. Метод аналізу XML-документа (Шаблон проєктування Strategy)" FontAttributes="Bold" FontSize="16" />
+                    <HorizontalStackLayout Spacing="24">
+                        <RadioButton x:Name="SaxRadio" Content="SAX API (XmlTextReader)" GroupName="StrategyGroup" IsChecked="True" />
+                        <RadioButton x:Name="DomRadio" Content="DOM API (XmlDocument + XPath)" GroupName="StrategyGroup" />
+                        <RadioButton x:Name="LinqRadio" Content="LINQ to XML (XDocument)" GroupName="StrategyGroup" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Stroke="#CBD5E1" StrokeThickness="1" Padding="12" BackgroundColor="#F1F5F9">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="3. Практичні завдання з лекції (Завдання 2–7, стор. 296–297):" FontAttributes="Bold" FontSize="16" />
+                    <FlexLayout Wrap="Wrap" JustifyContent="Start" AlignItems="Center">
+                        <Button Text="🔢 Завдання 2 і 3 (LINQ масив)" Clicked="OnRunLinq2And3Clicked" Margin="4" BackgroundColor="#334155" />
+                        <Entry x:Name="MyRootIdEntry" Placeholder="ID (1, 2 або 3)" Text="2" WidthRequest="120" Margin="4" />
+                        <Button Text="🔎 Завдання 4–6 (MyRoot за ID)" Clicked="OnRunMyRootSearchClicked" Margin="4" BackgroundColor="#0F766E" />
+                        <Button Text="📊 Завдання 7 (MyRoot у HTML)" Clicked="OnRunMyRootHtmlClicked" Margin="4" BackgroundColor="#4338CA" />
+                    </FlexLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Stroke="#CBD5E1" StrokeThickness="1" Padding="12">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="4. Результати аналізу та трансформації XML-документа:" FontAttributes="Bold" FontSize="16" />
+                    <Editor x:Name="OutputEditor" HeightRequest="260" IsReadOnly="True" FontFamily="Consolas" FontSize="14" Placeholder="Тут з'являться результати пошуку..." />
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
